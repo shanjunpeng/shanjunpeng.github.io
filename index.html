@@ -93,156 +93,16 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="一、创建对象">一、创建对象</h2><h3 id="1、工厂模式">1、工厂模式</h3><p>工厂模式可以解决多个相似对象的问题，却无法解决对象识别的问题（不知道对象的类型）  </p>
-<pre><code><span class="function"><span class="keyword">function</span> <span class="title">createPerson</span>(<span class="params">name,age</span>)</span>{
-    <span class="keyword">var</span> o = <span class="keyword">new</span> <span class="built_in">Object</span>();
-    o.name=name;
-    o.age=age;
-    o.sayName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
-        alert(<span class="keyword">this</span>.name);        
-    }
-    <span class="keyword">return</span> o;
-}
-<span class="keyword">var</span> person = createPerson(<span class="string">"Tom"</span>,<span class="number">25</span>);
-</code></pre><h3 id="2、构造函数模式">2、构造函数模式</h3><p>缺点：它的每个成员都无法得到复用，包括函数。将函数放到全局，又会失去封装性。  </p>
-<pre><code>function <span class="keyword">Person</span>(name,age){
-    this.name=name;
-    this.age=age;
-    //把函数放到外部，防止每创建一个对象就创建一个sayName函数的对象
-    this.sayName = sayName;
-}
-function sayName(){
-    alert(this.name);
-}
-var <span class="keyword">person</span> = new <span class="keyword">Person</span>(<span class="string">"Jim"</span>,18);
-</code></pre><h3 id="3、原型模式">3、原型模式</h3><p>原型模式省略了构造函数传递初始化参数这一环节，结果所有实例在默认情况下都将取得相同的属性值。<br>原型模式中所有属性是被多实例共享的，如果是引用类型（如数组），其中一个实例修改了数组内容，其他实例也会反映出这个修改。  </p>
-<pre><code>function <span class="keyword">Person</span>(){
-}
-<span class="keyword">Person</span>.prototype.name=<span class="string">"Jim"</span>;
-<span class="keyword">Person</span>.prototype.age=18;
-<span class="keyword">Person</span>.prototype.friends = <span class="comment">["Lily","Tom"]</span>;
-<span class="keyword">Person</span>.prototype.sayName = function(){
-    alert(this.name);
-}
-</code></pre><p>原型模式字面量写法：  </p>
-<pre><code><span class="keyword">Person</span>.prototype={
-    name:<span class="string">"Jim"</span>,
-    age:18,
-    sayName:function(){
-        alert(this.name);
-    }    
-}
-</code></pre><h3 id="4、组合使用构造函数模式和原型模式">4、组合使用构造函数模式和原型模式</h3><p>使用最广泛，认同度最高的创建自定义类型的方式。<br>使用构造函数定义实例属性，使用原型定义共享的属性和方法。  </p>
-<pre><code>function <span class="keyword">Person</span>(name,age){
-    this.name = name;
-    this.age=age;
-    this.hobby=<span class="comment">["game","spot"]</span>;        
-}
-<span class="keyword">Person</span>.prototype = {
-    constructor:<span class="keyword">Person</span>，
-    sayName:function(){
-        alert(this.name);
-    }
-}
-</code></pre><h3 id="5、动态原型模式">5、动态原型模式</h3><p>把所有信息封装在构造函数之中，在构造函数中初始化原型。  </p>
-<pre><code>function <span class="keyword">Person</span>(name,age){
-    this.name=name;
-    this.age=age;
-    //只需要在第一次调用构造函数时初始化原型
-    if(typeof this.sayName!=<span class="string">"function"</span>){
-        <span class="keyword">Person</span>.prototype.sayName = function(){
-            alert(this.name);
-        }
-        <span class="keyword">Person</span>.prototype.sayAge = function(){
-            alert(this.age);
-        }
-    }
-}
-</code></pre><h3 id="6、寄生构造函数模式">6、寄生构造函数模式</h3><p>可以在特殊情况下用来给对象创建构造函数，如创建一个具有额外方法的特殊数组。  </p>
-<pre><code><span class="function"><span class="keyword">function</span> <span class="title">SpecialArray</span>(<span class="params"></span>)</span>{
-    <span class="keyword">var</span> arr = <span class="keyword">new</span> <span class="built_in">Array</span>();
-    arr.push.apply(arr,<span class="built_in">arguments</span>);
-    arr.joinString = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
-        <span class="keyword">return</span> <span class="keyword">this</span>.join(<span class="string">"|"</span>);
-    };
-    <span class="keyword">return</span> arr;
-}
-<span class="keyword">var</span> colors = <span class="keyword">new</span> SpecialArray(<span class="string">"red"</span>,<span class="string">"yellow"</span>);
-alert(colors.joinString());
-</code></pre><hr>
-<h2 id="二、继承">二、继承</h2><h3 id="1、原型链">1、原型链</h3><p>让子类的原型对象等于父类的一个实例。</p>
-<pre><code><span class="comment">//父类</span>
-<span class="function"><span class="keyword">function</span> <span class="title">SuperType</span><span class="params">()</span></span>{
-    <span class="keyword">this</span>.property = <span class="number">1</span>;
-    <span class="keyword">this</span>.colors = [<span class="string">"blue"</span>,<span class="string">"red"</span>];    
-}
-SuperType.prototype.getSuperValue=<span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-    <span class="keyword">return</span> <span class="keyword">this</span>.property;
-}
-<span class="comment">//子类</span>
-<span class="function"><span class="keyword">function</span> <span class="title">SubType</span><span class="params">()</span></span>{
-    <span class="keyword">this</span>.subProp = <span class="number">2</span>;
-}
-<span class="comment">//使用父类的实例作为子类的prototype</span>
-SubType.prototype=<span class="keyword">new</span> SuperType();
-
-SubType.prototype.getSubValue=<span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-    <span class="keyword">return</span> <span class="keyword">this</span>.subProp;
-}
-<span class="comment">//可以重写父类方法</span>
-SubType.prototype.getSuperValue=<span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-    <span class="keyword">return</span> <span class="number">3</span>;
-}
-</code></pre><p>缺点：子类实例引用属性的修改会影响其他实例  </p>
-<pre><code>var<span class="instruction"> instance </span>=<span class="instruction"> new </span>SubType(<span class="function">)</span>;
-var instance2 =<span class="instruction"> new </span>SubType(<span class="function">)</span>;
-instance.colors.push(<span class="string">"black"</span><span class="function">)</span>;
-alert(instance.colors<span class="function">)</span>;//blue,red,black
-alert(instance2.colors<span class="function">)</span>;//blue,red,black
-</code></pre><h3 id="2、寄生组合式继承">2、寄生组合式继承</h3><p>寄生组合继承是引用类型最理想的继承范式，是实现基于类型继承的最有效方式。</p>
-<pre><code><span class="function"><span class="keyword">function</span> <span class="title">inheritPrototype</span>(<span class="params">subType,superType</span>)</span>{
-    <span class="keyword">var</span> prototype = <span class="built_in">Object</span>.create(superType.prototype);<span class="comment">//创建对象</span>
-    prototype.constructor=subType;
-    subType.protoType=prototype;<span class="comment">//指定对象</span>
-}
-<span class="comment">//父类</span>
-<span class="function"><span class="keyword">function</span> <span class="title">SuperType</span>(<span class="params">name</span>)</span>{
-    <span class="keyword">this</span>.colors=[<span class="string">"red"</span>,<span class="string">"blue"</span>];
-    <span class="keyword">this</span>.name=name;
-}
-SuperType.prototype={
-    flag:<span class="literal">true</span>,
-    sayName:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
-        alert(<span class="keyword">this</span>.name);
-    }
-};
-<span class="comment">//子类</span>
-<span class="function"><span class="keyword">function</span> <span class="title">SubType</span>(<span class="params">name,age</span>)</span>{
-    <span class="comment">//继承属性</span>
-    SuperType.call(<span class="keyword">this</span>,name);
-    <span class="keyword">this</span>.age=age;
-}
-<span class="comment">//继承prototype</span>
-inheritPrototype(SubType,SuperType);
-
-SubType.prototype.sayAge=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
-    alert(<span class="keyword">this</span>.age);
-};
-
-<span class="keyword">var</span> subtype = <span class="keyword">new</span> SubType(<span class="string">"sjp"</span>,<span class="number">25</span>);
-<span class="keyword">var</span> subtype2 = <span class="keyword">new</span> SubType(<span class="string">"xuxu"</span>,<span class="number">22</span>);
-<span class="comment">//继承了方法</span>
-subtype.sayName();<span class="comment">//sjp</span>
-<span class="comment">//继承了属性</span>
-alert(subtype.flag);<span class="comment">//true</span>
-<span class="comment">//子类实例属性的修改不影响其他实例</span>
-subtype.colors.push(<span class="string">"black"</span>);
-alert(subtype2.colors);<span class="comment">//blue,red,yellow</span>
-</code></pre>
+        <h2 id="一、创建对象">一、创建对象</h2><h3 id="1、工厂模式">1、工厂模式</h3><p>工厂模式可以解决多个相似对象的问题，却无法解决对象识别的问题（不知道对象的类型）<br>
+        
+          <p class="article-more-link">
+            <a href="/2015/06/18/js1/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shanjunpeng.github.io/2015/06/18/js1/" data-id="cib1v6ubq000bqgd3qj3wgpx1" class="article-share-link">Share</a>
+      <a data-url="http://shanjunpeng.github.io/2015/06/18/js1/" data-id="cibaa76bq000bh4d3nt6jw5lo" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li></ul>
@@ -285,7 +145,7 @@ alert(subtype2.colors);<span class="comment">//blue,red,yellow</span>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shanjunpeng.github.io/2015/06/17/diary1/" data-id="cib1v6ubv000hqgd33xxv5zrk" class="article-share-link">Share</a>
+      <a data-url="http://shanjunpeng.github.io/2015/06/17/diary1/" data-id="cibaa76bv000hh4d3q3i6dte9" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/日志/">日志</a></li></ul>
@@ -339,7 +199,7 @@ alert(subtype2.colors);<span class="comment">//blue,red,yellow</span>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shanjunpeng.github.io/2015/06/16/learn-markdown/" data-id="cib1v6ubl0006qgd3s3kej50l" class="article-share-link">Share</a>
+      <a data-url="http://shanjunpeng.github.io/2015/06/16/learn-markdown/" data-id="cibaa76bl0006h4d3b1a2e6s0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
@@ -382,7 +242,7 @@ alert(subtype2.colors);<span class="comment">//blue,red,yellow</span>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shanjunpeng.github.io/2015/06/16/hello-world/" data-id="cib1v6ubt000gqgd36one65n7" class="article-share-link">Share</a>
+      <a data-url="http://shanjunpeng.github.io/2015/06/16/hello-world/" data-id="cibaa76bt000gh4d348ez2lyu" class="article-share-link">Share</a>
       
       
     </footer>
@@ -427,7 +287,7 @@ alert(subtype2.colors);<span class="comment">//blue,red,yellow</span>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shanjunpeng.github.io/2015/06/15/My-New-Post/" data-id="cib1v6ub80000qgd3con3hwux" class="article-share-link">Share</a>
+      <a data-url="http://shanjunpeng.github.io/2015/06/15/My-New-Post/" data-id="cibaa76b80000h4d3730ki8i7" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/日志/">日志</a></li></ul>
